@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VBIT Student Portal | Secure Campus Dining</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --vbit-blue: #0f172a; --gold: #f1c40f; --light: #f8fafc; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: #0f172a; color: white; overflow-x: hidden; }
+        
+        /* VBIT CAMPUS BACKGROUND */
+        #auth-screen { 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), 
+                        url('https://images.shiksha.com/mediadata/images/1555582672php73KVPG.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(12px); 
+            padding: 40px; 
+            border-radius: 30px; 
+            width: 380px; 
+            text-align: center; 
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        nav { background: var(--vbit-blue); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        input { width: 100%; padding: 14px; margin: 12px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; box-sizing: border-box; }
+        .login-btn { width: 100%; padding: 16px; background: var(--gold); border: none; border-radius: 50px; font-weight: 700; cursor: pointer; color: #0f172a; transition: 0.3s; }
+        
+        #app-dashboard { display: none; background: var(--light); color: #1e293b; min-height: 100vh; padding: 20px 5%; }
+        #status-display { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 25px; display: none; }
+        
+        .controls { margin-bottom: 25px; }
+        #searchBar { width: 100%; padding: 15px; border-radius: 15px; color:black; border: 1px solid #e2e8f0; font-size: 1rem; margin-bottom: 15px; }
+        .categories { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+        .cat-btn { padding: 10px 24px; border-radius: 50px; border: 1px solid #cbd5e1; background: white; cursor: pointer; white-space: nowrap; font-weight: 600; }
+        .cat-btn.active { background: var(--vbit-blue); color: white; border-color: var(--vbit-blue); }
+        
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; }
+        .food-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; padding-bottom: 20px; border: 1px solid #f1f5f9; }
+        .food-card img { width: 100%; height: 180px; object-fit: cover; }
+        .order-btn { background: var(--vbit-blue); color: white; border: none; padding: 12px 25px; border-radius: 12px; cursor: pointer; font-weight: 600; }
+        
+        #payment-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; }
+        .payment-card { background: white; color: #1e293b; padding: 25px; border-radius: 25px; width: 340px; text-align: center; }
+        .pay-option { border: 1px solid #ddd; padding: 12px; border-radius: 12px; cursor: pointer; margin: 8px 0; font-weight: 600; }
+        #qr-screen img { width: 220px; margin: 15px 0; border: 5px solid #f1f5f9; border-radius: 15px; }
+		    /* ===== RESPONSIVE FIX START ===== */
+        @media (max-width: 1024px) {
+            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+            .food-card img { height: 140px; }
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 10px 3%; }
+            #app-dashboard { padding: 15px 3%; }
+            .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .food-card img { height: 120px; }
+            .food-card h3 { font-size: 0.8rem; height: auto; }
+            .order-btn { font-size: 0.75rem; padding: 6px 10px; }
+            .cat-btn { font-size: 0.7rem; padding: 6px 14px; }
+        }
+
+        @media (max-width: 480px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .food-card img { height: 150px; }
+            .glass-card { padding: 20px; width: 90%; }
+            input { padding: 12px; }
+            .login-btn { padding: 12px; }
+        }
+        /* ===== RESPONSIVE FIX END ===== */
+    </style>
+</head>
+<body>
+    <nav><span style="font-weight: bold; color: var(--gold); font-size: 1.2rem;">VBIT CANTEEN</span></nav>
+    
+    <div id="auth-screen">
+        <div class="glass-card">
+            <h1 style="color:var(--gold); margin-bottom:0;">VBIT</h1>
+            <h2 style="margin-top:0; font-weight:300;">Smart Canteen</h2>
+            <input type="email" id="email" placeholder="Email @vbithyd.ac.in">
+            <input type="tel" id="phone" placeholder="10-Digit Mobile" maxlength="10">
+            <button class="login-btn" onclick="strictLogin()">Enter Menu</button>
+        </div>
+    </div>
+
+    <div id="app-dashboard">
+        <div id="status-display">
+            <h3 id="status-item-name" style="margin:0;">Status Header</h3>
+            <p id="status-desc" style="margin:5px 0; font-size:0.9rem;">Status Description</p>
+        </div>
+        <div class="controls">
+            <input type="text" id="searchBar" placeholder="Search food..." onkeyup="filterMenu()">
+            <div class="categories">
+                <button class="cat-btn active" onclick="filterCategory('All', this)">All Items</button>
+                <button class="cat-btn" onclick="filterCategory('Tiffins', this)">Tiffins</button>
+                <button class="cat-btn" onclick="filterCategory('Main', this)">Lunch & Biryanis</button>
+                <button class="cat-btn" onclick="filterCategory('Snacks', this)">Fast Food & Snacks</button>
+                <button class="cat-btn" onclick="filterCategory('Drinks', this)">Beverages</button>
+            </div>
+        </div>
+        <div id="menuGrid" class="menu-grid"></div>
+    </div>
+
+    <div id="payment-modal">
+        <div class="payment-card">
+            <div id="method-screen">
+                <h3>Choose Payment</h3>
+                <p id="pay-amount" style="font-weight:bold; color:#059669;"></p>
+                <div class="pay-option" onclick="showQR('PhonePe')">PhonePe</div>
+                <div class="pay-option" onclick="showQR('GPay')">Google Pay</div>
+                <button onclick="closePayment()" style="color:red; cursor:pointer; background:none; border:none;">Cancel</button>
+            </div>
+            <div id="qr-screen" style="display:none;">
+                <h3>Scan & Pay</h3>
+                <img src="C:\Users\manoj\Documents\MANOO\WhatsApp Image 2026-03-04 at 6.04.31 PM.jpeg" alt="QR" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=VBIT'">
+                <p id="payment-timer" style="color:#ef4444; font-weight:bold;">Redirecting in 10s...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuItems = [
+            // --- TIFFINS ---
+            { name: 'Idly (4 pieces)', price: 25, cat: 'Tiffins', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400' },
+            { name: 'Vada (2 pieces)', price: 40, cat: 'Tiffins', img: 'https://125332710.cdn6.editmysite.com/uploads/1/2/5/3/125332710/6EGO7RFC36EX5C376SU7UBR5.jpeg' },
+            { name: 'Mysore Bajji (4)', price: 40, cat: 'Tiffins', img: 'https://www.myspicykitchen.net/wp-content/uploads/2018/03/Mysore-Bonda-500x375.jpg' },
+            { name: 'Tomato Bath', price: 35, cat: 'Tiffins', img: 'https://www.sharmispassions.com/wp-content/uploads/2011/09/tomato-bath3s.jpg' },
+            { name: 'Upma', price: 35, cat: 'Tiffins', img: 'https://www.maggi.in/sites/default/files/srh_recipes/5f1439c480c484bacc2fcc13ac018173.jpg' },
+            { name: 'Poori Sabzi (3)', price: 40, cat: 'Tiffins', img: 'https://www.spiceupthecurry.com/wp-content/uploads/2016/01/poori-masala-recipe-12-500x500.jpg' },
+            { name: 'Single Breakfast', price: 20, cat: 'Tiffins', img: 'https://www.eatingwell.com/thmb/G6rBwHilu4jWNkTyLnMV7TDtdZc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/hash-brown-egg-and-cheese-sandwich-0a462030b90b4345b0780fb3befcb0e6.jpg' },
+            { name: 'Plain Dosa', price: 40, cat: 'Tiffins', img: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=400' },
+            { name: 'Set Dosa', price: 45, cat: 'Tiffins', img: 'https://www.sizzlingtastebuds.com/wp-content/uploads/2023/01/9.png' },
+            { name: 'Onion Dosa', price: 40, cat: 'Tiffins', img: 'https://i0.wp.com/www.tomatoblues.com/wp-content/uploads/2012/02/rava-onion-dosa-1-scaled.jpg?fit=1696%2C2560&ssl=1' },
+            { name: 'Breakfast Combo', price: 70, cat: 'Tiffins', img: 'https://book.hafla.com/cdn/shop/products/SouthIndianBreakfastCombo.jpg?v=1677227813&width=1445' },
+
+            // --- BIRYANIS & LUNCH ---
+            { name: 'Veg Biryani', price: 75, cat: 'Main', img: 'https://t4.ftcdn.net/jpg/05/70/58/65/360_F_570586537_TnIgWdCnaTYpgg9gsTyloz5bnvfCtdLl.jpg	' },
+            { name: 'Egg Biryani', price: 85, cat: 'Main', img: 'https://www.indianhealthyrecipes.com/wp-content/uploads/2020/02/instant-pot-egg-biryani.jpg' },
+            { name: 'Chicken Biryani', price: 120, cat: 'Main', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400' },
+            { name: 'Meals', price: 70, cat: 'Main', img: 'https://b.zmtcdn.com/data/dish_photos/765/e0434591945472fc848a60fa2d242765.jpg' },
+            { name: 'Rice & 1 Egg Curry', price: 80, cat: 'Main', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlzOycBgmUNZZbJYwM1_G63USFKpwjnE1rHA&s' },
+            { name: 'Rice & Chicken Curry', price: 100, cat: 'Main', img: 'https://www.rachelphipps.com/wp-content/uploads/2024/09/Indian-Chicken-Makhani.jpg' },
+            { name: 'Chinese Combo Veg', price: 90, cat: 'Main', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2lCC1aMHGWf1ZVjRV0d0yevSnNgG0iCNMAFo3aCWt8B9qpPv1wDyhgd9tBa4PwUkhOpE&usqp=CAU' },
+            { name: 'Chinese Combo Non-Veg', price: 130, cat: 'Main', img: 'https://images.unsplash.com/photo-1525755662778-989d0524087e?w=400' },
+            { name: 'Any Flavoured Rice', price: 65, cat: 'Main', img: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400' },
+            { name: 'Any Veg Curry', price: 25, cat: 'Main', img: 'https://static.india.com/wp-content/uploads/2024/09/1-2024-09-15T184133.931.jpg?impolicy=Medium_Widthonly&w=400&h=800' },
+            { name: 'Egg Curry', price: 40, cat: 'Main', img: 'https://www.spicebangla.com/wp-content/uploads/2024/08/Egg-Masala-Curry.webp' },
+            { name: 'Chicken Curry', price: 60, cat: 'Main', img: 'https://www.theflavorbender.com/wp-content/uploads/2018/02/Sri-Lankan-Chicken-Curry-The-Flavor-Bender-Featured-Image-SQ-2.jpg' },
+            { name: 'Paneer Curry', price: 40, cat: 'Main', img: 'https://theyummydelights.com/wp-content/uploads/2018/07/dhaba-style-paneer-masala-recipe.jpg' },
+            { name: 'Omelette', price: 40, cat: 'Main', img: 'https://www.olivetomato.com/wp-content/uploads/2016/02/SAM4952-1.jpg' },
+            { name: 'Dal/Sambar', price: 20, cat: 'Main', img: 'https://myfoodstory.com/wp-content/uploads/2021/03/One-Pot-Sambar-1.jpg' },
+
+            // --- PARATAS ---
+            { name: 'Parata with Veg Curry', price: 60, cat: 'Main', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBAfKquO8ecoIdiIqOiw03KwMbI7Cu-DJvkw&s' },
+            { name: 'Parata with Egg Curry', price: 70, cat: 'Main', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQk8mTV_g02zAddiqPoD7TKFotn4uGsu71VTw&s' },
+            { name: 'Parata & Chicken Curry', price: 90, cat: 'Main', img: 'https://maunikagowardhan.co.uk/wp-content/uploads/2017/08/Tamil-Black-Pepper-Chicken-Curry-700x467.jpg' },
+            { name: 'Extra Parata', price: 30, cat: 'Main', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTftMx79Cj9QMstioILb56kx0EpIHh5DNKJg99995ohPkHM0h8K8VRz8UHSsFVMC9uJb9Y&usqp=CAU' },
+
+            // --- FAST FOOD & SNACKS ---
+            { name: 'Veg Fried Rice', price: 50, cat: 'Snacks', img: 'https://s.lightorangebean.com/media/20240914150137/Extra-Veggie-Fried-Rice_done-500x375.png' },
+            { name: 'Egg Fried Rice', price: 60, cat: 'Snacks', img: 'https://cdn.sunbasket.com/43c6c3c7-146a-4404-b04a-52750e110e37.jpg' },
+            { name: 'Chicken Fried Rice', price: 70, cat: 'Snacks', img: 'https://iamhomesteader.com/wp-content/uploads/2025/05/Bang-Bang-Chicken-Fried-Rice-2.jpg' },
+            { name: 'Veg Manchurian', price: 65, cat: 'Snacks', img: 'https://i.ytimg.com/vi/nPPNmjiGCCk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBpSPEKcY0CCK-By9uh0oF_zjWobw' },
+            { name: 'Veg Manchurian Rice', price: 80, cat: 'Snacks', img: 'https://image.cdn.shpy.in/392528/SKU-0829_0-1757578043008.jpg?width=600&format=webp' },
+            { name: 'Chicken Manchurian', price: 90, cat: 'Snacks', img: 'https://uptownasia.in/wp-content/uploads/2024/09/Chicken-Manchurian-01.jpg' },
+            { name: 'Chicken Manchurian Rice', price: 110, cat: 'Snacks', img: 'https://i.ytimg.com/vi/7Bfj1mEp6dA/maxresdefault.jpg' },
+            { name: 'Veg Noodles', price: 50, cat: 'Snacks', img: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400' },
+            { name: 'Egg Noodles', price: 60, cat: 'Snacks', img: 'https://images.unsplash.com/photo-1552611052-33e04de081de?w=400' },
+            { name: 'Chicken Noodles', price: 70, cat: 'Snacks', img: 'https://sinfullyspicy.com/wp-content/uploads/2023/01/1200-by-1200-images-5-500x500.jpg' },
+            { name: 'Onion Pakoda', price: 35, cat: 'Snacks', img: 'https://www.sharmispassions.com/wp-content/uploads/2022/02/onion-pakoda-recipe4-500x500.jpg' },
+            { name: 'Punugulu (12 pcs)', price: 35, cat: 'Snacks', img: 'https://i.ytimg.com/vi/ppST2CZYUS8/maxresdefault.jpg' },
+            { name: 'Allu Bonda (3pcs)', price: 35, cat: 'Snacks', img: 'https://www.indianhealthyrecipes.com/wp-content/uploads/2012/05/aloo-bonda-recipe-1.jpg' },
+            { name: 'Mirchi (3pcs)', price: 35, cat: 'Snacks', img: 'https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,h_960,w_960//InstamartAssets/Bajji.webp' },
+            { name: 'Egg Bonda (2pcs)', price: 40, cat: 'Snacks', img: 'https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,h_960,w_960//InstamartAssets/Receipes/egg_bonda.webp' },
+            { name: 'Bread Pakoda (3pcs)', price: 50, cat: 'Snacks', img: 'https://www.vegrecipesofindia.com/wp-content/uploads/2010/08/bread-pakora-recipe.jpg' },
+
+            // --- BEVERAGES ---
+            { name: 'Coffee', price: 15, cat: 'Drinks', img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400' },
+            { name: 'Tea', price: 10, cat: 'Drinks', img: 'https://assets.cntraveller.in/photos/60ba2522c28d168a1ec862a3/1:1/w_1080,h_1080,c_limit/Tea-.jpg' },
+            { name: 'Buttermilk', price: 30, cat: 'Drinks', img: 'https://5.imimg.com/data5/SELLER/Default/2022/6/PW/LH/KF/49407825/buttermilk-500x500.jpg' },
+            { name: 'Sweet Lassi', price: 40, cat: 'Drinks', img: 'https://www.indianveggiedelight.com/wp-content/uploads/2023/01/sweet-lassi-recipe-featured.jpg' },
+            { name: 'Juices (small)', price: 25, cat: 'Drinks', img: 'https://images.unsplash.com/photo-1536935338788-846bb9981813?w=400' },
+            { name: 'Juices (full)', price: 40, cat: 'Drinks', img: 'https://assets.clevelandclinic.org/transform/47cdb246-3c9d-4efb-8b3b-1e6b85567a16/Fruit-Juice-155376375-770x533-1_jpg' },
+            { name: 'Milkshakes', price: 60, cat: 'Drinks', img: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400' }
+        ];
+
+        let currentCategory = 'All';
+        let pendingOrder = null;
+
+        function strictLogin() {
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const phone = document.getElementById('phone').value.trim();
+            if (email.endsWith("@vbithyd.ac.in") && phone.length === 10) {
+                localStorage.setItem('vbit_user_id', email.split('@')[0]);
+                localStorage.setItem('vbit_user_phone', phone);
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app-dashboard').style.display = 'block';
+                renderMenu(menuItems);
+                startStatusSync();
+            } else { alert("Use VBIT email and 10-digit phone."); }
+        }
+
+        function renderMenu(items) {
+            document.getElementById('menuGrid').innerHTML = items.map(item => `
+                <div class="food-card" data-name="${item.name.toLowerCase()}" data-cat="${item.cat}">
+                    <img src="${item.img}" onerror="this.src='https://via.placeholder.com/400x180?text=Food'">
+                    <h3>${item.name}</h3>
+                    <p style="color:#10b981; font-weight:700;">₹${item.price}</p>
+                    <button class="order-btn" onclick="startPayment('${item.name}', ${item.price})">Order Now</button>
+                </div>
+            `).join('');
+        }
+
+        function startPayment(name, price) {
+            pendingOrder = { name, price };
+            document.getElementById('pay-amount').innerText = `Amount: ₹${price}`;
+            document.getElementById('payment-modal').style.display = 'flex';
+            document.getElementById('qr-screen').style.display = 'none';
+            document.getElementById('method-screen').style.display = 'block';
+        }
+
+        function showQR(method) {
+            document.getElementById('method-screen').style.display = 'none';
+            document.getElementById('qr-screen').style.display = 'block';
+            let sec = 10;
+            const timer = setInterval(() => {
+                sec--;
+                document.getElementById('payment-timer').innerText = `Redirecting in ${sec}s...`;
+                if(sec <= 0){ clearInterval(timer); processFinal(); }
+            }, 1000);
+        }
+
+        function processFinal() {
+            let orders = JSON.parse(localStorage.getItem('VBIT_FINAL_SYSTEM')) || [];
+            const token = "TKT-" + Math.floor(1000 + Math.random() * 9000);
+            orders.push({ 
+                id: localStorage.getItem('vbit_user_id'), 
+                phone: localStorage.getItem('vbit_user_phone'), 
+                item: pendingOrder.name, 
+                price: pendingOrder.price, 
+                token: token, 
+                status: "Paid & New" 
+            });
+            localStorage.setItem('VBIT_FINAL_SYSTEM', JSON.stringify(orders));
+            document.getElementById('payment-modal').style.display = 'none';
+            alert("Verification Sent! Token: " + token);
+        }
+
+        function filterMenu() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const cards = document.querySelectorAll('.food-card');
+            cards.forEach(card => {
+                const matchesSearch = card.getAttribute('data-name').includes(query);
+                const matchesCat = (currentCategory === 'All' || card.getAttribute('data-cat') === currentCategory);
+                card.style.display = (matchesSearch && matchesCat) ? 'block' : 'none';
+            });
+        }
+
+        function filterCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterMenu();
+        }
+
+        function closePayment() { document.getElementById('payment-modal').style.display = 'none'; }
+
+        function startStatusSync() {
+            setInterval(() => {
+                const orders = JSON.parse(localStorage.getItem('VBIT_FINAL_SYSTEM')) || [];
+                const myID = localStorage.getItem('vbit_user_id');
+                const myOrder = [...orders].reverse().find(o => o.id === myID);
+                const display = document.getElementById('status-display');
+                if (!myOrder) { display.style.display = "none"; return; }
+                const nameEl = document.getElementById('status-item-name');
+                const descEl = document.getElementById('status-desc');
+
+                if (myOrder.status === "Cancelled") {
+                    const timePassed = (Date.now() - (myOrder.cancelledAt || 0)) / 1000;
+                    if (timePassed < 30) {
+                        display.style.display = "block";
+                        display.style.borderLeft = "8px solid #ef4444";
+                        nameEl.innerText = "❌ Order Rejected";
+                        descEl.innerText = `Payment check failed. Clears in ${Math.round(30 - timePassed)}s`;
+                    } else { display.style.display = "none"; }
+                } else if (myOrder.status === "Done") {
+                    const timePassed = (Date.now() - (myOrder.doneAt || 0)) / 1000;
+                    if (timePassed < 30) {
+                        display.style.display = "block";
+                        display.style.borderLeft = "8px solid #10b981";
+                        nameEl.innerText = "✅ Enjoy Your Meal!";
+                        descEl.innerText = `Order collected. Clears in ${Math.round(30 - timePassed)}s`;
+                    } else { display.style.display = "none"; }
+                } else if (myOrder.status === "Paid & New") {
+                    display.style.display = "block";
+                    display.style.borderLeft = "8px solid #ef4444";
+                    nameEl.innerText = "Verifying Payment...";
+                    descEl.innerText = "Wait for manager approval.";
+                } else {
+                    display.style.display = "block";
+                    display.style.borderLeft = "8px solid #3b82f6";
+                    nameEl.innerText = `${myOrder.item} (#${myOrder.token})`;
+                    descEl.innerText = "Status: " + myOrder.status;
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
