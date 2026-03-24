@@ -76,10 +76,7 @@
             .glass-card { padding: 25px; }
             nav span { font-size: 1rem !important; }
         }
-		<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-
+		
     </style>
 </head>
 <body>
@@ -130,7 +127,7 @@
         </div>
     </div>
 
-      <script>
+    <script>
         const menuItems = [
             { name: 'Idly (4 pieces)', price: 25, cat: 'Tiffins', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400' },
             { name: 'Vada (2 pieces)', price: 40, cat: 'Tiffins', img: 'https://125332710.cdn6.editmysite.com/uploads/1/2/5/3/125332710/6EGO7RFC36EX5C376SU7UBR5.jpeg' },
@@ -307,46 +304,6 @@
                 }
             }, 1000);
         }
-    // 1. Your unique Firebase Configuration
-    const firebaseConfig = {
-        apiKey: "AIza...",
-        authDomain: "vbit-canteen.firebaseapp.com",
-        databaseURL: "https://vbit-canteen-default-rtdb.firebaseio.com",
-        projectId: "vbit-canteen",
-        storageBucket: "vbit-canteen.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abc123def"
-    };
-
-    // 2. Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    // ... rest of your student page functions (strictLogin, renderMenu, etc.)
-  // PASTE YOUR CONFIG HERE
-  const firebaseConfig = { ... }; 
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-
-  // Change your processFinal function to send to Cloud:
-  function processFinal() {
-      const token = "TKT-" + Math.floor(1000 + Math.random() * 9000);
-      const orderData = {
-          id: localStorage.getItem('vbit_user_id'),
-          item: pendingOrder.name,
-          price: pendingOrder.price,
-          token: token,
-          status: "Paid & New",
-          timestamp: Date.now()
-      };
-
-      // PUSH TO FIREBASE (This makes it go online!)
-      database.ref('orders').push(orderData);
-      
-      document.getElementById('payment-modal').style.display = 'none';
-      alert("Order Sent to Canteen! Token: " + token);
-  }
-
     </script>
 </body>
 </html>
